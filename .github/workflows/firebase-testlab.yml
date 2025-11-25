@@ -10,15 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # ----------------------------
-    # Check out your repository
-    # ----------------------------
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    # --------------------------------------------
-    # Set up Google Cloud SDK and authenticate
-    # --------------------------------------------
     - name: Set up gcloud
       uses: google-github-actions/setup-gcloud@v1
       with:
@@ -32,28 +26,20 @@ jobs:
           testing.googleapis.com \
           storage.googleapis.com
 
-    # --------------------------------------------
-    # Build APKs using Gradle
-    # --------------------------------------------
     - name: Build APKs
       run: |
         chmod +x ./gradlew
         ./gradlew assembleDebug assembleAndroidTest
 
-    # --------------------------------------------
-    # Upload APKs for debugging (optional)
-    # --------------------------------------------
-    - name: Upload APKs
-      uses: actions/upload-artifact@v3
+    # Upload built APKs (Updated to v4)
+    - name: Upload Built APKs
+      uses: actions/upload-artifact@v4
       with:
         name: built-apks
         path: |
           app/build/outputs/apk/debug/app-debug.apk
           app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
-    # --------------------------------------------
-    # Run Firebase Test Lab
-    # --------------------------------------------
     - name: Run tests in Firebase Test Lab
       run: |
         gcloud firebase test android run \
@@ -64,19 +50,14 @@ jobs:
           --results-bucket=${{ secrets.FIREBASE_RESULTS_BUCKET }} \
           --results-dir=github_artifacts_${{ github.run_id }}
 
-    # --------------------------------------------
-    # Download results from your bucket
-    # --------------------------------------------
-    - name: Download Test Results
+    - name: Download TestLab Results from Bucket
       run: |
         mkdir results
         gsutil -m cp -r gs://${{ secrets.FIREBASE_RESULTS_BUCKET }}/github_artifacts_${{ github.run_id }}/* results/
 
-    # --------------------------------------------
-    # Upload results to GitHub artifacts
-    # --------------------------------------------
-    - name: Upload TestLab Results
-      uses: actions/upload-artifact@v3
+    # Upload results (Updated to v4)
+    - name: Upload TestLab Results Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: testlab-results
         path: results/
