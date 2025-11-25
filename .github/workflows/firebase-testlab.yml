@@ -1,0 +1,82 @@
+name: Android Firebase Test Lab
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  firebase-testlab:
+    runs-on: ubuntu-latest
+
+    steps:
+    # ----------------------------
+    # Check out your repository
+    # ----------------------------
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # --------------------------------------------
+    # Set up Google Cloud SDK and authenticate
+    # --------------------------------------------
+    - name: Set up gcloud
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.FIREBASE_SA_KEY }}
+        project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+    - name: Enable required APIs
+      run: |
+        gcloud services enable \
+          toolresults.googleapis.com \
+          testing.googleapis.com \
+          storage.googleapis.com
+
+    # --------------------------------------------
+    # Build APKs using Gradle
+    # --------------------------------------------
+    - name: Build APKs
+      run: |
+        chmod +x ./gradlew
+        ./gradlew assembleDebug assembleAndroidTest
+
+    # --------------------------------------------
+    # Upload APKs for debugging (optional)
+    # --------------------------------------------
+    - name: Upload APKs
+      uses: actions/upload-artifact@v3
+      with:
+        name: built-apks
+        path: |
+          app/build/outputs/apk/debug/app-debug.apk
+          app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+
+    # --------------------------------------------
+    # Run Firebase Test Lab
+    # --------------------------------------------
+    - name: Run tests in Firebase Test Lab
+      run: |
+        gcloud firebase test android run \
+          --type instrumentation \
+          --app app/build/outputs/apk/debug/app-debug.apk \
+          --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+          --device model=Pixel2,version=30,locale=en,orientation=portrait \
+          --results-bucket=${{ secrets.FIREBASE_RESULTS_BUCKET }} \
+          --results-dir=github_artifacts_${{ github.run_id }}
+
+    # --------------------------------------------
+    # Download results from your bucket
+    # --------------------------------------------
+    - name: Download Test Results
+      run: |
+        mkdir results
+        gsutil -m cp -r gs://${{ secrets.FIREBASE_RESULTS_BUCKET }}/github_artifacts_${{ github.run_id }}/* results/
+
+    # --------------------------------------------
+    # Upload results to GitHub artifacts
+    # --------------------------------------------
+    - name: Upload TestLab Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: testlab-results
+        path: results/
