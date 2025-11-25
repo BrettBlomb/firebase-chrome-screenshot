@@ -3,7 +3,7 @@ name: Android Firebase Test Lab
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   firebase-testlab:
