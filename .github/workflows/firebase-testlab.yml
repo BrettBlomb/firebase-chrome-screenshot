@@ -10,9 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # ----------------------------
+    # Checkout repository
+    # ----------------------------
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # ----------------------------
+    # Set up gcloud
+    # ----------------------------
     - name: Set up gcloud
       uses: google-github-actions/setup-gcloud@v2
       with:
@@ -20,6 +26,27 @@ jobs:
         project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
         export_default_credentials: true
 
+    # ----------------------------
+    # 🔍 DEBUG AUTHENTICATION
+    # ----------------------------
+    - name: Debug gcloud auth
+      run: |
+        echo "===== gcloud info ====="
+        gcloud info || true
+        echo "===== active account ====="
+        gcloud auth list || true
+        echo "===== GOOGLE_APPLICATION_CREDENTIALS ====="
+        echo "$GOOGLE_APPLICATION_CREDENTIALS"
+        echo "===== credentials file ====="
+        if [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+          cat "$GOOGLE_APPLICATION_CREDENTIALS"
+        else
+          echo "CREDENTIAL FILE NOT FOUND"
+        fi
+
+    # ----------------------------
+    # Enable required APIs
+    # ----------------------------
     - name: Enable required APIs
       run: |
         gcloud services enable \
@@ -27,12 +54,17 @@ jobs:
           testing.googleapis.com \
           storage.googleapis.com
 
+    # ----------------------------
+    # Build APKs
+    # ----------------------------
     - name: Build APKs
       run: |
         chmod +x ./gradlew
         ./gradlew assembleDebug assembleAndroidTest
 
-    # Upload built APKs (Updated to v4)
+    # ----------------------------
+    # Upload built APK artifacts
+    # ----------------------------
     - name: Upload Built APKs
       uses: actions/upload-artifact@v4
       with:
@@ -41,6 +73,9 @@ jobs:
           app/build/outputs/apk/debug/app-debug.apk
           app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
+    # ----------------------------
+    # Run Firebase Test Lab
+    # ----------------------------
     - name: Run tests in Firebase Test Lab
       run: |
         gcloud firebase test android run \
@@ -51,12 +86,17 @@ jobs:
           --results-bucket=${{ secrets.FIREBASE_RESULTS_BUCKET }} \
           --results-dir=github_artifacts_${{ github.run_id }}
 
+    # ----------------------------
+    # Download TestLab Results
+    # ----------------------------
     - name: Download TestLab Results from Bucket
       run: |
         mkdir results
         gsutil -m cp -r gs://${{ secrets.FIREBASE_RESULTS_BUCKET }}/github_artifacts_${{ github.run_id }}/* results/
 
-    # Upload results (Updated to v4)
+    # ----------------------------
+    # Upload test results
+    # ----------------------------
     - name: Upload TestLab Results Artifact
       uses: actions/upload-artifact@v4
       with:
