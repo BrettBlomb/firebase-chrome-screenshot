@@ -19,22 +19,21 @@ If you're a **hiring manager, recruiter, or engineer reviewing my work**, thank 
 | Field | Value |
 |------|-------|
 | **Status** | Passed |
-| **Device** | dubai |
+| **Device** | XQ-DQ72 |
 | **Android Version** | 34 |
 | **Matrix ID** | `__MATRIX__` |
-| **Run ID** | `19693700016` |
-| **Timestamp** | `Wed Nov 26 05:40:29 UTC 2025` |
+| **Run ID** | `19694000045` |
+| **Timestamp** | `Wed Nov 26 05:57:08 UTC 2025` |
 | **Firebase Report URL** | __URL__ |
 
 ---
 
 # 🎞 Latest Test Video Preview  
 ![Latest Test GIF](docs/latest_test.gif)
-Then click "View Raw"
 
 # 🎥 Full Test Video (MP4)  
 👉 [Click to watch latest_test.mp4](docs/latest_test.mp4)  
-*(Hosted directly from this repository’s docs folder.)*
+*(Hosted directly from this repository’s docs folder. Click "View Raw")*
 
 ---
 
