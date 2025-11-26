@@ -8,6 +8,7 @@ on:
       - "README.md"
       - "docs/latest_test.mp4"
       - "docs/latest_test.gif"
+      - "docs/latest_test_thumbnail.png"
 
 permissions:
   contents: write
@@ -53,10 +54,15 @@ jobs:
       run: |
         MODELS=$(gcloud firebase test android models list --format=json)
         echo "$MODELS" > models.json
+
         PHONE_MODELS=$(jq '[ .[] | select(.formFactor=="PHONE") ]' models.json)
         RANDOM_MODEL=$(echo "$PHONE_MODELS" | jq -r '.[].id' | shuf -n 1)
-        OS_VERSIONS=$(echo "$PHONE_MODELS" | jq -r --arg M "$RANDOM_MODEL" '.[] | select(.id==$M) | .supportedVersionIds[]')
+
+        OS_VERSIONS=$(echo "$PHONE_MODELS" | jq -r --arg M "$RANDOM_MODEL" \
+          '.[] | select(.id==$M) | .supportedVersionIds[]')
+
         RANDOM_VERSION=$(echo "$OS_VERSIONS" | shuf -n 1)
+
         echo "MODEL=$RANDOM_MODEL" >> $GITHUB_ENV
         echo "VERSION=$RANDOM_VERSION" >> $GITHUB_ENV
 
@@ -71,13 +77,29 @@ jobs:
           --device model=$MODEL,version=$VERSION,locale=en,orientation=portrait \
           --results-bucket=fir-chrome-screenshot-results \
           --results-dir=github_${{ github.run_id }} \
-          2>&1 | tee ftl_full_output.log
+          2>&1 | tee ftl_full_output.json
 
-        FTL_URL=$(grep -o 'https://console.firebase.google.com[^ ]*' ftl_full_output.log | head -n 1)
+        # Extract test result status
+        OUTCOME=$(jq -r '.[0].outcome // "Failed"' ftl_full_output.json)
+        echo "STATUS=$OUTCOME" >> $GITHUB_ENV
+
+        # Extract matrix ID
+        MATRIX=$(jq -r '.[0].testMatrixId // "unknown"' ftl_full_output.json)
+        echo "MATRIX=$MATRIX" >> $GITHUB_ENV
+
+        # Extract Firebase URL
+        FTL_URL=$(grep -o 'https://console.firebase.google.com[^ ]*' ftl_full_output.json | head -n 1)
         echo "FTL_URL=$FTL_URL" >> $GITHUB_ENV
 
-    # 8️⃣ Download MP4 + install ffmpeg
-    - name: Download Results and Convert Video to GIF
+        # Add timestamp
+        TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+
+        # Add run ID
+        echo "RUNID=${{ github.run_id }}" >> $GITHUB_ENV
+
+    # 8️⃣ Download MP4 + Convert to GIF
+    - name: Download Results and Convert Video
       run: |
         sudo apt-get update
         sudo apt-get install -y ffmpeg
@@ -90,37 +112,38 @@ jobs:
         VIDEO=$(find results -name "*.mp4" | head -n 1 || true)
 
         if [ -n "$VIDEO" ]; then
-          echo "Found video: $VIDEO"
           cp "$VIDEO" docs/latest_test.mp4
 
-          # Convert MP4 → GIF (optimized for GitHub)
+          # Convert MP4 → GIF (full-length preview)
           ffmpeg -y -i "$VIDEO" -vf "fps=12,scale=420:-1:flags=lanczos" docs/latest_test.gif
+
+          # Create thumbnail PNG (optional but nice)
+          ffmpeg -y -i "$VIDEO" -ss 00:00:01.000 -vframes 1 docs/latest_test_thumbnail.png
         else
-          echo "No video found."
+          echo "⚠️ No video found."
         fi
 
-    # 9️⃣ Update README from external template
+    # 9️⃣ Update README from the template
     - name: Update README
       run: |
-        STATUS="Failed"
-        if grep -qi "Passed" ftl_full_output.log; then STATUS="Passed"; fi
-
         cp ci/readme_template.md README.md
 
         sed -i "s|__STATUS__|$STATUS|g" README.md
-        sed -i "s|__RUNID__|${{ github.run_id }}|g" README.md
         sed -i "s|__DEVICE__|$MODEL|g" README.md
         sed -i "s|__VERSION__|$VERSION|g" README.md
-        sed -i "s|__FTLURL__|$FTL_URL|g" README.md
+        sed -i "s|__MATRIX__|$MATRIX|g" README.md
+        sed -i "s|__RUNID__|$RUNID|g" README.md
+        sed -i "s|__TIMESTAMP__|$TIMESTAMP|g" README.md
+        sed -i "s|__URL__|$FTL_URL|g" README.md
 
         git config user.email "github-actions@github.com"
         git config user.name "GitHub Actions"
 
-        git add README.md docs/latest_test.mp4 docs/latest_test.gif
+        git add README.md docs/latest_test.mp4 docs/latest_test.gif docs/latest_test_thumbnail.png
         git commit -m "Update README with latest Firebase results [skip ci]" || echo "No changes"
         git push || true
 
-    # 🔟 Upload result artifacts
+    # 🔟 Upload artifacts
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
