@@ -28,27 +28,36 @@ If you're a **hiring manager, recruiter, or engineer reviewing my work**, thank 
 
 ---
 
-# 🎥 Latest Test Video  
-*(Recorded on a real Android device through Firebase Test Lab)*
+# 🎞 Latest Test Video Preview  
+![Latest Test GIF](docs/latest_test.gif)
 
-`docs/latest_test.mp4`
-
-Click to watch or download the video.
+# 🎥 Full Test Video (MP4)  
+👉 [Click to watch latest_test.mp4](docs/latest_test.mp4)  
+*(Hosted directly from this repository’s docs folder.)*
 
 ---
 
 # 📱 Project Overview
 
-This project runs automated **instrumented Android UI tests** on **real devices**:
+This project runs automated **instrumented Android UI tests** on **real devices** using:
 
-- Launches Chrome  
-- Navigates to a target URL  
-- Performs UIAutomator actions  
-- Captures screenshots  
-- Saves artifacts to Google Cloud Storage  
-- Updates this README automatically with the latest results  
+- Android Studio  
+- UIAutomator  
+- Firebase Test Lab  
+- Google Cloud Storage  
+- GitHub Actions  
 
-This demonstrates an end-to-end mobile automation lifecycle using **Android Studio → Firebase Test Lab → GitHub Actions → GCS → README updates**.
+The workflow performs:
+
+- Building the APK & test APK  
+- Deploying them to a real Firebase Test Lab device  
+- Running UIAutomator-based tests  
+- Recording the entire device execution  
+- Downloading the test video from GCS  
+- Generating a GIF preview  
+- Updating this README automatically with the latest results  
+
+This creates a complete mobile automation feedback loop.
 
 ---
 
@@ -90,29 +99,40 @@ More tests coming soon, including YouTube, Reddit, scroll actions, dynamic UI va
 
 | Component | Purpose |
 |----------|---------|
-| Android Studio | Build APK + Test APK |
-| UIAutomator | Drive Chrome & Android UI |
-| Firebase Test Lab | Real device execution |
-| Google Cloud Storage | Store video + logs |
-| GitHub Actions | CI pipeline & README updates |
-| Kotlin Instrumentation Tests | Test implementation |
+| **Android Studio** | Build APK + Test APK |
+| **UIAutomator** | Drive Chrome & Android UI |
+| **Firebase Test Lab** | Real device execution |
+| **Google Cloud Storage** | Store video + logs |
+| **GitHub Actions** | CI pipeline & README updates |
+| **Kotlin Instrumentation Tests** | Test implementation |
 
 ---
 
 # 📂 Repository Structure
+
 app/
 src/androidTest/
 ChromeGithubScreenshotTest.kt
 docs/
 latest_test.mp4
+latest_test.gif
+latest_test_thumbnail.png
 .github/
 workflows/
 android_firebase_test.yml
-
+ci/
+readme_template.md
 
 ---
 
-# ✨ Thank You  
-More portfolio projects coming soon!
+# ✨ Thank You for Reading!
 
+If you're evaluating my skills, feel free to reach out — I'm always open to opportunities in:
 
+- QA Automation  
+- SDET  
+- Mobile Test Engineering  
+- CI/CD Engineering  
+- Cloud Test Infrastructure  
+
+Looking forward to connecting!
