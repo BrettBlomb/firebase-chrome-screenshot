@@ -8,6 +8,9 @@ on:
       - "README.md"
       - "docs/latest_test.mp4"
 
+permissions:
+  contents: write
+
 jobs:
   firebase-testlab:
     runs-on: ubuntu-latest
