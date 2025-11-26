@@ -30,11 +30,10 @@ If you're a **hiring manager, recruiter, or engineer reviewing my work**, thank 
 
 # 🎞 Latest Test Video Preview  
 ![Latest Test GIF](docs/latest_test.gif)
-Then click "View Raw"
 
 # 🎥 Full Test Video (MP4)  
 👉 [Click to watch latest_test.mp4](docs/latest_test.mp4)  
-*(Hosted directly from this repository’s docs folder.)*
+*(Hosted directly from this repository’s docs folder. Click "View Raw")*
 
 ---
 
