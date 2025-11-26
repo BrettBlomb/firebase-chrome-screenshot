@@ -10,8 +10,8 @@ __FTLURL__
 
 ---
 
-### 📹 Latest Test Video  
-<video controls width="420">
-  <source src="docs/latest_test.mp4" type="video/mp4">
-Your browser does not support the video tag.
-</video>
+### 🎞 Latest Test Video Preview  
+![Latest Test GIF](docs/latest_test.gif)
+
+### 🎥 Full MP4 Video  
+👉 [Click to watch latest_test.mp4](docs/latest_test.mp4)
