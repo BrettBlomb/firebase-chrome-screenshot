@@ -10,29 +10,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 1️⃣ Write your base64 service account into a file (ONE LINE, NO NEWLINES)
-    - name: Create service account file
+    # 1️⃣ Create Base64 file → decode → write sa-key.json
+    - name: Create service account key file
       run: |
-        printf '%s' "ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiZmlyLWNocm9tZS1zY3JlZW5zaG90IiwKICAicHJpdmF0ZV9rZXlfaWQiOiAiNmViYzQ0YmFjM2FjYTJjOTg3ODI5M2NlNmQxYjUxNjgwNzRjMGNmYyIsCiAgInByaXZhdGVfa2V5IjogIi0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLVxuTUlJRXZBSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS1l3Z2dTaUFnRUFBb0lCQVFEUWQ3MERublZCVUhXaFxuTzcvS01jMll0OERBM0RDSkhUVVJZQ1FSZlpiL21XbWtEMlFVTWpuZlI5cFVxM1lBY2Z0S0hyakJPYTc4TnFsL1xucXladUlMZjIwK05WWDZXenIyTUU2cE1MNTR5SzhsMjgzQy9YdkppenpxUjl4YVk1eGUrYWM4ZithN3VKNnNZWVxuellnVk50SlJXeGh0MGl1eTltQnBPRnNFRG9JMFdPQ1dzOGppQWhobkZDY2lHM2VxREJJTEZvQ1VuNjJBWVpwdVxuekgwV2xSV2R6aXZtR3FhQVVvUUNLMW9IVWU3SnZUS2V6cG5YM3dsYVZYODJxSUdlSThuVHZVR2hDTDdLOVZGelxuaTRQV3dmcHJJSTk0Z0F4UGcyYzBob2wrSWVxckh5MjBqWWk5ekMvOHZkRGVkL1ZwTzZoNytsZnRocCtsbWZUTVxuQ1lNRHh2TTdBZ01CQUFFQ2dnRUFCRTRzdzZuZW54SXowN2docm1IWDdxc0EycHJSajh0Z0lMTTlHM1ZlREhwVlxuSWJQRnE5c2JzZDVRaG9ZaUFrRllZTUFBcmREc3FiM1JRMWM4REhNMWlXMzMySGdJdW96SlBUMUErekoxaHhzWlxuVDRDMnBqeDVaT0ZFS1dyUEU0dGdkdTZrTno5dldKcFdMQVgycFFXRVUzVFByTmoxMlJUWWllUEZrWEJoUlFaMVxuVG41SnBIRVZLSmJoNVJWSlJFZThjVHhGU2NYbjVQbEo3V0NhS3N5U0lQNnpTZ3haOFJ2TXphTUVHNVVHODZ6ZVxuSG9GS1ZFSTMvN0dxWlRIdEJRMzFPV09QRkkzNTNJdGJBSDRmVjhFWTlYWG9ibTI4T0dURXU1ZnhBWDJQTnIwblxuMmZPMG4xN0ExZUhXeUg2ZTU5YUdxcWpXSkJ6KzRqdnZMTUQ3ais5bEhRS0JnUUQ2RVIvWUhvVi96cjhqN3JkaFxuMk9pdXFBcnB1bmp2Ylg2UE83blRZZ3BLeEpMMVdOc1Fzd2xJcFdJcUIrNUFVektld0dYWmNydGc5ZldKc3NlclxucGFkN1NUZmFPeWdGWFVzUHN6U1FaSHpBenlwdnBJYkc5L05tb2cxdkw5K1pVQmtzQTFSaElVaEVFcFNJZ3RxdlxuRUh6TWltTHV1SllOMU1YeWNaRnIycE5RTndLQmdRRFZhZkliTHBkdlZJU1ZnYWtPRExkeE13N2xEWTkrYzRDZFxuajljVFc3STkxVEoxZlBTd0dZN2FEKzlZN1gxK0dZVFpCZlRYTFZXS3RyYkJ6OW44ZHRXM2l0aUpVN1cyQlIva1xuaU0zQzlKbEIwMmVJcEYrcFgxSEFZcTYwZDVMYVBHaFhpb2lVUWZEcjQ1cGJUYUxmanFuRTdaNXlZN25RZU5GNVxuR09jT01UK0xIUUtCZ0FwMmFQU3I0ajRFc202WWNFZkJ3WXA5TVdleUM1bEk1WUNzcVF1MUVHVXNjRkdmbEJyUVxud3RTdFJyd25kTXB3TUsvL3NNTTJUNnl3M2NNVEhkT0tyTVUxdlFaK2J5QTZWUWVsSWMvZ3hHOTB1M3ZNVUc5R1xudElKWXlXTWJoNmxzZG9FbTZvTGQxNTR4Z05GdFdDVDI5YUhCTUg1NGJwN0poamFzbGI4RGVDSmxBb0dBS3V3bFxuQ255RGJwdkVFc0hDTzVZcEt2Wkc3NkNibEtZc1h3UTRFS2Vub0xJSmRRSE53TUZUTHQ1M21CNGoyRUhQcTBwOFxuWk82MFByTGk3UFlkOUozOSsrMU1BY3E1U0VPZGwzeEFUZzZkNkZSWmhXeng1SUhNVW5KR2l2dGxxTWp2ZjNQWVxuWm1FZzBJQzFZZG1xZ1dZVEZRMXBpYjR1K0JQa3BZTnhyVFFRZ0swQ2dZQkpVOFgzUlNwOGlCRVJydVFGT3pPU1xuU3JKRm5DY3RJam01dE5DbjJ5dnI5UjI5MGl6aWNZR3dMKzZxbnNML0NwNFNIOUhHV296dmUrMkdBcHRIRkwvV1xub0lPUElVT1A3bmlzSW5pZjdIK2VJYURzM2VvY3BGSWdvbXpxTWk2eE8yRHZpQkxSdHduK2o2YitKOE1BeFlqUVxudkRIa0k2aEUrV3lYOGx0SmptcUxNZz09XG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iCg==" > key.b64
+        printf '%s' "ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiZmlyLWNocm9tZS1zY3JlZW5zaG90IiwKICAicHJpdmF0ZV9rZXlfaWQiOiAiNmViYzQ0YmFjM2FjYTJjOTg3ODI5M2NlNmQxYjUxNjgwNzRjMGNmYyIsCiAgInByaXZhdGVfa2V5IjogIi0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLVxuTUlJRXZBSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS1l3Z2dTaUFnRUFBb0lCQVFEUWQ3MERublZCVUhXaFxuTzcvS01jMll0OERBM0RDSkhUVVJZQ1FSZlpiL21XbWtEMlFVTWpuZlI5cFVxM1lBY2Z0S0hyakJPYTc4TnFsL1xucXladUlMZjIwK05WWDZXenIyTUU2cE1MNTR5SzhsMjgzQy9YdkppenpxUjl4YVk1eGUrYWM4ZithN3VKNnNZWVxuellnVk50SlJXeGh0MGl1eTltQnBPRnNFRG9JMFdPQ1dzOGppQWhobkZDY2lHM2VxREJJTEZvQ1VuNjJBWVpwdVxuekgwV2xSV2R6aXZtR3FhQVVvUUNLMW9IVWU3SnZUS2V6cG5YM3dsYVZYODJxSUdlSThuVHZVR2hDTDdLOVZGelxuaTRQV3dmcHJJSTk0Z0F4UGcyYzBob2wrSWVxckh5MjBqWWk5ekMvOHZkRGVkL1ZwTzZoNytsZnRocCtsbWZUTVxuQ1lNRHh2TTdBZ01CQUFFQ2dnRUFCRTRzdzZuZW54SXowN2docm1IWDdxc0EycHJSajh0Z0lMTTlHM1ZlREhwVlxuSWJQRnE5c2JzZDVRaG9ZaUFrRllZTUFBcmREc3FiM1JRMWM4REhNMWlXMzMySGdJdW96SlBUMUErekoxaHhzWlxuVDRDMnBqeDVaT0ZFS1dyUEU0dGdkdTZrTno5dldKcFdMQVgycFFXRVUzVFByTmoxMlJUWWllUEZrWEJoUlFaMVxuVG41SnBIRVZLSmJoNVJWSlJFZThjVHhGU2NYbjVQbEo3V0NhS3N5U0lQNnpTZ3haOFJ2TXphTUVHNVVHODZ6ZVxuSG9GS1ZFSTMvN0dxWlRIdEJRMzFPV09QRkkzNTNJdGJBSDRmVjhFWTlYWG9ibTI4T0dURXU1ZnhBWDJQTnIwblxuMmZPMG4xN0ExZUhXeUg2ZTU5YUdxcWpXSkJ6KzRqdnZMTUQ3ais5bEhRS0JnUUQ2RVIvWUhvVi96cjhqN3JkaFxuMk9pdXFBcnB1bmp2Ylg2UE83blRZZ3BLeEpMMVdOc1Fzd2xJcFdJcUIrNUFVektld0dYWmNydGc5ZldKc3NlclxucGFkN1NUZmFPeWdGWFVzUHN6U1FaSHpBenlwdnBJYkc5L05tb2cxdkw5K1pVQmtzQTFSaElVaEVFcFNJZ3RxdlxuRUh6TWltTHV1SllOMU1YeWNaRnIycE5RTndLQmdRRFZhZkliTHBkdlZJU1ZnYWtPRExkeE13N2xEWTkrYzRDZFxuajljVFc3STkxVEoxZlBTd0dZN2FEKzlZN1gxK0dZVFpCZlRYTFZXS3RyYkJ6OW44ZHRXM2l0aUpVN1cyQlIva1xuaU0zQzlKbEIwMmVJcEYrcFgxSEFZcTYwZDVMYVBHaFhpb2lVUWZEcjQ1cGJUYUxmanFuRTdaNXlZN25RZU5GNVxuR09jT01UK0xIUUtCZ0FwMmFQU3I0ajRFc202WWNFZkJ3WXA5TVdleUM1bEk1WUNzcVF1MUVHVXNjRkdmbEJyUVxud3RTdFJyd25kTXB3TUsvL3NNTTJUNnl3M2NNVEhkT0tyTVUxdlFaK2J5QTZWUWVsSWMvZ3hHOTB1M3ZNVUc5R1xudElKWXlXTWJoNmxzZG9FbTZvTGQxNTR4Z05GdFdDVDI5YUhCTUg1NGJwN0poamFzbGI4RGVDSmxBb0dBS3V3bFxuQ255RGJwdkVFc0hDTzVZcEt2Wkc3NkNibEtZc1h3UTRFS2Vub0xJSmRRSE53TUZUTHQ1M21CNGoyRUhQcTBwOFxuWk82MFByTGk3UFlkOUozOSsrMU1BY3E1U0VPZGwzeEFUZzZkNkZSWmhXeng1SUhNVW5KR2l2dGxxTWp2ZjNQWVxuWm1FZzBJQzFZZG1xZ1dZVEZRMXBpYjR1K0JQa3BZTnhyVFFRZ0swQ2dZQkpVOFgzUlNwOGlCRVJydVFGT3pPU1xuU3JKRm5DY3RJam01dE5DbjJ5dnI5UjI5MGl6aWNZR3dMKzZxbnNML0NwNFNIOUhHV296dmUrMkdBcHRIRkwvV1xub0lPUElVT1A3bmlzSW5pZjdIK2VJYURzM2VvY3BGSWdvbXpxTWk2eE8yRHZpQkxSdHduK2o2YitKOE1BeFlqUVxudkRIa0k2aEUrV3lYOGx0SmptcUxNZz09XG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLAogICJjbGllbnRfZW1haWwiOiAiZmlyZWJhc2UtYWRtaW5zZGstZmJzdmNAZmlyLWNocm9tZS1zY3JlZW5zaG90LmlhbS5nc2VydmljZWFjY291bnQuY29tIiwKICAiY2xpZW50X2lkIjogIjEwMDM0NjA3OTY4ODMyOTc2MzM0NCIsCiAgImF1dGhfdXJpIjogImh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbS9vL29hdXRoMi9hdXRoIiwKICAidG9rZW5fdXJpIjogImh0dHBzOi8vb2F1dGgyLmdvb2dsZWFwaXMuY29tL3Rva2VuIiwKICAiYXV0aF9wcm92aWRlcl94NTA5X2NlcnRfdXJsIjogImh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL29hdXRoMi92MS9jZXJ0cyIsCiAgImNsaWVudF94NTA5X2NlcnRfdXJsIjogImh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL3JvYm90L3YxL21ldGFkYXRhL3g1MDkvZmlyZWJhc2UtYWRtaW5zZGstZmJzdmMlNDBmaXItY2hyb21lLXNjcmVlbnNob3QuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJ1bml2ZXJzZV9kb21haW4iOiAiZ29vZ2xlYXBpcy5jb20iCn0K" > key.b64
         base64 -d key.b64 > sa-key.json
 
-    # 2️⃣ Activate service account manually (bypasses the action completely)
-    - name: Activate service account
+    # 2️⃣ Activate the service account
+    - name: Authenticate with gcloud
       run: |
         gcloud auth activate-service-account --key-file=sa-key.json
         gcloud config set project fir-chrome-screenshot
 
-    - name: Verify auth
+    - name: Verify authentication
       run: |
         echo "===== ACTIVE ACCOUNT ====="
         gcloud auth list
 
-    - name: Enable APIs
+    - name: Enable required Google APIs
       run: |
         gcloud services enable \
           toolresults.googleapis.com \
           testing.googleapis.com \
           storage.googleapis.com
+
+    # 3️⃣ Build APK
+    - name: Build APKs
+      run: |
+        chmod +x ./gradlew
+        ./gradlew assembleDebug assembleAndroidTest
+
+    # 4️⃣ Run test in Firebase Test Lab
+    - name: Run Firebase Test Lab
+      run: |
+        gcloud firebase test android run \
+          --type instrumentation \
+          --app app/build/outputs/apk/debug/app-debug.apk \
+          --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+          --device model=Pixel2,version=30,locale=en,orientation=portrait \
+          --results-bucket=fir-chrome-screenshot-results \
+          --results-dir=github_${{ github.run_id }}
+
+    # 5️⃣ Download results
+    - name: Download Test Results
+      run: |
+        mkdir results
+        gsutil -m cp -r gs://fir-chrome-screenshot-results/github_${{ github.run_id }}/* results/
+
+    # 6️⃣ Upload as GitHub artifact
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: firebase-results
+        path: results/
