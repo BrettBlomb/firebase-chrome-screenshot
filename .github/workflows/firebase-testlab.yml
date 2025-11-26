@@ -64,14 +64,14 @@ jobs:
         echo "MODEL=$RANDOM_MODEL" >> $GITHUB_ENV
         echo "VERSION=$RANDOM_VERSION" >> $GITHUB_ENV
 
-    # 5️⃣ Run Firebase Test Lab (NOW WITH CLICKABLE URL)
+        # 5️⃣ Run Firebase Test Lab with clickable link extraction from logs
     - name: Run Firebase Test Lab
       id: runftl
       run: |
         echo "Using model: $MODEL"
         echo "Using version: $VERSION"
 
-        # Run FTL and capture JSON output
+        # Run test and capture BOTH stdout + stderr
         gcloud firebase test android run \
           --type instrumentation \
           --format=json \
@@ -80,23 +80,19 @@ jobs:
           --device model=$MODEL,version=$VERSION,locale=en,orientation=portrait \
           --results-bucket=fir-chrome-screenshot-results \
           --results-dir=github_${{ github.run_id }} \
-          > ftl_output.json
+          2>&1 | tee ftl_full_output.log
 
-        echo "===== RAW JSON ====="
-        cat ftl_output.json
+        echo "===== FTL RAW OUTPUT ====="
+        cat ftl_full_output.log
 
-        # Extract IDs
-        MATRIX_ID=$(jq -r '.matrixId' ftl_output.json)
-        HISTORY_ID=$(jq -r '.testExecutions[0].testExecutionId' ftl_output.json)
-
-        # Build clickable URL
-        FTL_URL="https://console.firebase.google.com/project/fir-chrome-screenshot/testlab/histories/$HISTORY_ID/matrices/$MATRIX_ID"
+        # Extract Firebase URL from the logs
+        FTL_URL=$(grep -o 'https://console.firebase.google.com[^ ]*' ftl_full_output.log | head -n 1)
 
         echo "FTL_URL=$FTL_URL" >> $GITHUB_ENV
 
         echo ""
         echo "============================="
-        echo "🔥 VIEW YOUR TEST RESULTS 🔥"
+        echo "🔥🔥 VIEW TEST RESULTS 🔥🔥"
         echo "$FTL_URL"
         echo "============================="
 
