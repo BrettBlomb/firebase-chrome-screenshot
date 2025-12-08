@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.By
 import org.junit.Test
@@ -16,18 +17,33 @@ import java.io.File
 @RunWith(AndroidJUnit4::class)
 class ChromeGithubScreenshotTest {
 
+    private fun dismissChromePopups(device: UiDevice) {
+        // Try to tap "No thanks"
+        val noThanks = device.findObject(UiSelector().textContains("No thanks"))
+        if (noThanks.exists()) {
+            noThanks.click()
+            Thread.sleep(1500)
+        }
+
+        // Optional: Tap "Skip" if shown on other Chrome versions
+        val skip = device.findObject(UiSelector().textContains("Skip"))
+        if (skip.exists()) {
+            skip.click()
+            Thread.sleep(1500)
+        }
+    }
+
     @Test
     fun openChromeAndScreenshotGithub() {
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = ApplicationProvider.getApplicationContext<Context>()
-
         val chromePkg = "com.android.chrome"
 
-        // 1. Intent to launch Chrome and open your GitHub
+        // 1. Intent to launch Chrome and open your GitHub page
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://github.com/BrettBlomb")
+            Uri.parse("https://github.com/BrettBlomb/firebase-chrome-screenshot/tree/master")
         ).apply {
             `package` = chromePkg
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -44,10 +60,14 @@ class ChromeGithubScreenshotTest {
             20_000
         )
 
-        // 4. Let the page finish loading
+        // 4. Attempt to dismiss Chrome popups BEFORE loading completes
+        Thread.sleep(2500)
+        dismissChromePopups(device)
+
+        // 5. Wait for page to load
         Thread.sleep(5000)
 
-        // 5. Save screenshot in /sdcard/.../files/screenshots/
+        // 6. Save screenshot in /sdcard/.../files/screenshots/
         val directory = context.getExternalFilesDir("screenshots")!!
         directory.mkdirs()
 
@@ -55,7 +75,7 @@ class ChromeGithubScreenshotTest {
 
         device.takeScreenshot(screenshotFile)
 
-        // 6. Verify screenshot exists
+        // 7. Verify screenshot exists
         assert(screenshotFile.exists())
     }
 }
