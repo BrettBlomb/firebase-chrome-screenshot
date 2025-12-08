@@ -6,10 +6,7 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
-import androidx.test.uiautomator.By
+import androidx.test.uiautomator.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -18,64 +15,68 @@ import java.io.File
 class ChromeGithubScreenshotTest {
 
     private fun dismissChromePopups(device: UiDevice) {
-        // Try to tap "No thanks"
-        val noThanks = device.findObject(UiSelector().textContains("No thanks"))
-        if (noThanks.exists()) {
-            noThanks.click()
-            Thread.sleep(1500)
-        }
+        val selectors = listOf("No thanks", "NO THANKS", "Skip", "Not now")
 
-        // Optional: Tap "Skip" if shown on other Chrome versions
-        val skip = device.findObject(UiSelector().textContains("Skip"))
-        if (skip.exists()) {
-            skip.click()
-            Thread.sleep(1500)
+        for (text in selectors) {
+            val button = device.findObject(UiSelector().textContains(text))
+            if (button.exists()) {
+                button.click()
+                Thread.sleep(1200)
+            }
         }
     }
 
     @Test
-    fun openChromeAndScreenshotGithub() {
+    fun openChromeScrollRepoReadme() {
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = ApplicationProvider.getApplicationContext<Context>()
         val chromePkg = "com.android.chrome"
 
-        // 1. Intent to launch Chrome and open your GitHub page
+        // Open repo directly
+        val repoUrl = "https://github.com/BrettBlomb/firebase-chrome-screenshot/tree/master"
+
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://github.com/BrettBlomb/firebase-chrome-screenshot/tree/master")
+            Uri.parse(repoUrl)
         ).apply {
             `package` = chromePkg
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
 
-        // 2. Launch Chrome
         context.startActivity(intent)
 
         val device = UiDevice.getInstance(instrumentation)
 
-        // 3. Wait for Chrome to appear
-        device.wait(
-            Until.hasObject(By.pkg(chromePkg).depth(0)),
-            20_000
-        )
+        // Wait for Chrome
+        device.wait(Until.hasObject(By.pkg(chromePkg).depth(0)), 20_000)
 
-        // 4. Attempt to dismiss Chrome popups BEFORE loading completes
+        // Give time for popup to appear
         Thread.sleep(2500)
         dismissChromePopups(device)
 
-        // 5. Wait for page to load
+        // Wait for GitHub repo page load
         Thread.sleep(5000)
 
-        // 6. Save screenshot in /sdcard/.../files/screenshots/
+        // Now scroll down the README slowly
+        for (i in 1..6) {  // Adjust number of scrolls here
+            device.swipe(
+                device.displayWidth / 2,                 // startX
+                device.displayHeight * 3 / 4,            // startY (lower)
+                device.displayWidth / 2,                 // endX
+                device.displayHeight / 4,                // endY (upper)
+                30                                       // steps (higher = slower)
+            )
+            Thread.sleep(1800)  // Delay between scrolls
+        }
+
+        // Screenshot at bottom (optional)
         val directory = context.getExternalFilesDir("screenshots")!!
         directory.mkdirs()
-
-        val screenshotFile = File(directory, "chrome_github_brettblomb.png")
+        val screenshotFile = File(directory, "firebase_repo_scroll.png")
 
         device.takeScreenshot(screenshotFile)
 
-        // 7. Verify screenshot exists
         assert(screenshotFile.exists())
     }
 }
