@@ -15,48 +15,15 @@ import java.io.File
 class ChromeGithubScreenshotTest {
 
     private fun dismissChromePopups(device: UiDevice) {
+        val selectors = listOf("No thanks", "NO THANKS", "Skip", "Not now")
 
-        Thread.sleep(2500)
-
-        val possibleTexts = listOf(
-            "No thanks",
-            "No, thanks",
-            "NOT NOW",
-            "Not now",
-            "Skip",
-            "Dismiss",
-            "Continue",
-            "Got it",
-            "Accept & continue",
-            "Continue without an account"
-        )
-
-        // Try simple text selectors
-        for (text in possibleTexts) {
+        for (text in selectors) {
             val button = device.findObject(UiSelector().textContains(text))
             if (button.exists()) {
                 button.click()
-                Thread.sleep(1500)
-                return
+                Thread.sleep(1200)
             }
         }
-
-        // WebView fallback selector
-        val webButton = device.findObject(
-            UiSelector().className("android.widget.Button").text("No thanks")
-        )
-        if (webButton.exists()) {
-            webButton.click()
-            Thread.sleep(1500)
-            return
-        }
-
-        // Coordinate fallback
-        val fallbackX = (device.displayWidth * 0.30).toInt()
-        val fallbackY = (device.displayHeight * 0.80).toInt()
-
-        device.click(fallbackX, fallbackY)
-        Thread.sleep(1500)
     }
 
     @Test
@@ -66,11 +33,13 @@ class ChromeGithubScreenshotTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val chromePkg = "com.android.chrome"
 
-        // Your GitHub repo target URL
+        // Open repo directly
         val repoUrl = "https://github.com/BrettBlomb/firebase-chrome-screenshot/tree/master"
 
-        // Initial Chrome launch intent (may not load URL until popup dismissed)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl)).apply {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(repoUrl)
+        ).apply {
             `package` = chromePkg
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
@@ -79,37 +48,35 @@ class ChromeGithubScreenshotTest {
 
         val device = UiDevice.getInstance(instrumentation)
 
-        // Wait for Chrome to be active
+        // Wait for Chrome
         device.wait(Until.hasObject(By.pkg(chromePkg).depth(0)), 20_000)
 
-        // Handle Chrome popup
+        // Give time for popup to appear
+        Thread.sleep(2500)
         dismissChromePopups(device)
 
-        // 🔥 Force actual navigation AFTER popup is dismissed
-        device.executeShellCommand(
-            "am start -a android.intent.action.VIEW -d $repoUrl $chromePkg"
-        )
+        // Wait for GitHub repo page load
+        Thread.sleep(5000)
 
-        Thread.sleep(5000) // allow repo page to load
-
-        // Scroll README slowly
-        for (i in 1..6) {
+        // Now scroll down the README slowly
+        for (i in 1..6) {  // Adjust number of scrolls here
             device.swipe(
-                device.displayWidth / 2,
-                device.displayHeight * 3 / 4,
-                device.displayWidth / 2,
-                device.displayHeight / 4,
-                30
+                device.displayWidth / 2,                 // startX
+                device.displayHeight * 3 / 4,            // startY (lower)
+                device.displayWidth / 2,                 // endX
+                device.displayHeight / 4,                // endY (upper)
+                30                                       // steps (higher = slower)
             )
-            Thread.sleep(1800)
+            Thread.sleep(1800)  // Delay between scrolls
         }
 
-        // Save screenshot
+        // Screenshot at bottom (optional)
         val directory = context.getExternalFilesDir("screenshots")!!
         directory.mkdirs()
         val screenshotFile = File(directory, "firebase_repo_scroll.png")
 
         device.takeScreenshot(screenshotFile)
+
         assert(screenshotFile.exists())
     }
 }
