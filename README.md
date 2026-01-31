@@ -19,12 +19,12 @@ If you're a **hiring manager, recruiter, or engineer reviewing my work**, thank 
 | Field | Value |
 |------|-------|
 | **Status** | Passed |
-| **Device** | a06 |
-| **Android Version** | 35 |
+| **Device** | t2q |
+| **Android Version** | 34 |
 | **Matrix ID** | `unknown` |
-| **Run ID** | `21523150139` |
-| **Timestamp** | `2026-01-30 16:43:18 UTC` |
-| **Firebase Report URL** | https://console.firebase.google.com/project/fir-chrome-screenshot/testlab/histories/bh.8b0805fc3617aad7/matrices/5112356443700877029 |
+| **Run ID** | `21547380843` |
+| **Timestamp** | `2026-01-31 16:32:01 UTC` |
+| **Firebase Report URL** | https://console.firebase.google.com/project/fir-chrome-screenshot/testlab/histories/bh.8b0805fc3617aad7/matrices/8915967266988019959 |
 
 ---
 
